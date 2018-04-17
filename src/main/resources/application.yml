@@ -1,0 +1,19 @@
+project.version: @project.version@
+
+spring:
+    jackson:
+        mapper:
+            DEFAULT_VIEW_INCLUSION: true
+        serialization:
+            WRITE_DATES_AS_TIMESTAMPS: false
+        time-zone: GMT+2
+    # Datababase configuration
+    jpa:
+        properties:
+            hibernate:
+                show_sql: true
+                format_sql: false
+                generate_statistics: false
+    h2:
+        console:
+            enabled: true
