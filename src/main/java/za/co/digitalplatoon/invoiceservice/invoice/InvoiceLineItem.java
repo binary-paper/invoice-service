@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -174,6 +172,7 @@ public class InvoiceLineItem implements Serializable {
     @ApiModelProperty(
             value = "The invoice line item total.",
             example = "5.97",
+            readOnly = true,
             position = 5
     )
     public BigDecimal getLineItemTotal() {

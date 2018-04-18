@@ -15,6 +15,7 @@
  */
 package za.co.digitalplatoon.invoiceservice.invoice;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -151,12 +152,13 @@ public class Invoice implements Serializable {
     private Long vatRate;
 
     // JPA annotations
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     // Bean validation annotations
     @NotNull(message = "{Invoice.invoiceDate.NotNull}")
     @Past(message = "{Invoice.invoiceDate.Past}")
     // Jackson annotations
     @JsonProperty(required = true)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonView({
         View.List.class,
         View.All.class,
@@ -167,9 +169,10 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice date.",
             example = "2018-04-17",
+            required = true,
             position = 5
     )
-    private Date invoiceDate = new Date();
+    private Date invoiceDate;
 
     // JPA annotations
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -202,6 +205,7 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice sub total excluding VAT.",
             example = "5.97",
+            readOnly = true,
             position = 7
     )
     private BigDecimal getSubTotal() {
@@ -221,6 +225,7 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice VAT amount.",
             example = "0.90",
+            readOnly = true,
             position = 8
     )
     public BigDecimal getVat() {
@@ -238,6 +243,7 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice total including VAT.",
             example = "6.87",
+            readOnly = true,
             position = 9
     )
     public BigDecimal getTotal() {
