@@ -65,6 +65,7 @@ import lombok.ToString;
     "invoiceDate",
     "lineItems",
     "subTotal",
+    "vat",
     "total"
 })
 // Lombok annotations
@@ -218,14 +219,29 @@ public class Invoice implements Serializable {
     })
     // Swagger annotations
     @ApiModelProperty(
-            value = "The invoice total including VAT.",
-            example = "6.87",
+            value = "The invoice VAT amount.",
+            example = "0.90",
             position = 8
     )
-    public BigDecimal getTotal() {
-        BigDecimal vat = new BigDecimal(vatRate).divide(new BigDecimal(100));
+    public BigDecimal getVat() {
         BigDecimal subTotal = getSubTotal();
-        return subTotal.multiply(vat).add(subTotal).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal vat = new BigDecimal(vatRate).divide(new BigDecimal(100));
+        return subTotal.multiply(vat).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The invoice total including VAT.",
+            example = "6.87",
+            position = 9
+    )
+    public BigDecimal getTotal() {
+        return getSubTotal().add(getVat()).setScale(2, RoundingMode.HALF_UP);
     }
 
     public interface View {
