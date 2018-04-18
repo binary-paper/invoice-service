@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,8 +61,11 @@ import lombok.ToString;
     "id",
     "version",
     "client",
+    "vatRate",
     "invoiceDate",
-    "lineItems"
+    "lineItems",
+    "subTotal",
+    "total"
 })
 // Lombok annotations
 @Data
@@ -126,6 +131,24 @@ public class Invoice implements Serializable {
     )
     private String client;
 
+    // Bean validation annotations
+    @NotNull(message = "{Invoice.vatRate.NotNull}")
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class,
+        View.Add.class,
+        View.Edit.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The invoice VAT rate.",
+            required = true,
+            example = "15",
+            position = 4
+    )
+    private Long vatRate;
+
     // JPA annotations
     @Temporal(TemporalType.TIMESTAMP)
     // Bean validation annotations
@@ -143,7 +166,7 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice date.",
             example = "2018-04-17",
-            position = 4
+            position = 5
     )
     private Date invoiceDate = new Date();
 
@@ -165,9 +188,45 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice line items.",
             required = true,
-            position = 5
+            position = 6
     )
     private List<InvoiceLineItem> lineItems = new ArrayList<>();
+
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The invoice sub total excluding VAT.",
+            example = "5.97",
+            position = 7
+    )
+    private BigDecimal getSubTotal() {
+        BigDecimal subTotal = new BigDecimal(0);
+        for (InvoiceLineItem lineItem : lineItems) {
+            subTotal = subTotal.add(lineItem.getLineItemTotal());
+        }
+        return subTotal;
+    }
+
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The invoice total including VAT.",
+            example = "6.87",
+            position = 8
+    )
+    public BigDecimal getTotal() {
+        BigDecimal vat = new BigDecimal(vatRate).divide(new BigDecimal(100));
+        BigDecimal subTotal = getSubTotal();
+        return subTotal.multiply(vat).add(subTotal).setScale(2, RoundingMode.HALF_UP);
+    }
 
     public interface View {
 

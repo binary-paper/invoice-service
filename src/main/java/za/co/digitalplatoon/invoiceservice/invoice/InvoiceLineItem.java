@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.ApiModelProperty;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -51,7 +53,8 @@ import za.co.digitalplatoon.invoiceservice.invoice.Invoice.View;
     "version",
     "quantity",
     "description",
-    "unitPrice"
+    "unitPrice",
+    "lineItemTotal"
 })
 // Lombok annotations
 @Data
@@ -118,7 +121,7 @@ public class InvoiceLineItem implements Serializable {
     @ApiModelProperty(
             value = "The quantity of the invoice line item.",
             required = true,
-            example = "2",
+            example = "3",
             position = 3
     )
     private Long quantity;
@@ -157,9 +160,24 @@ public class InvoiceLineItem implements Serializable {
     @ApiModelProperty(
             value = "The description of the invoice line item.",
             required = true,
-            example = "1.00",
+            example = "1.99",
             position = 4
     )
     private BigDecimal unitPrice;
 
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The invoice line item total.",
+            example = "5.97",
+            position = 5
+    )
+    public BigDecimal getLineItemTotal() {
+        return unitPrice.multiply(new BigDecimal(quantity));
+    }
+    
 }
