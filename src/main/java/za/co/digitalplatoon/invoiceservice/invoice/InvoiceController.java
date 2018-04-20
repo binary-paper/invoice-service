@@ -20,6 +20,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
@@ -29,6 +31,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import lombok.extern.java.Log;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -135,6 +139,36 @@ public class InvoiceController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(invoice);
+    }
+
+    // Spring annotations
+    @GetMapping(path = "{invoiceId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    // Security annotations
+    @RolesAllowed("view-invoice")
+    // Swagger annotations
+    @ApiOperation(value = "View an invoice PDF by ID",
+            notes = "View an invoice PDF by ID",
+            code = 200,
+            response = MultipartFile.class
+    )
+    @ApiResponses(value = {
+        @ApiResponse(code = 400, message = "The input data is invalid")
+        ,@ApiResponse(code = 404, message = "The invoiceId is invalid")
+    })
+    public ResponseEntity<FileSystemResource> viewInvoicePdf(
+            @PathVariable Long invoiceId,
+            @ApiIgnore Principal principal) throws FileNotFoundException {
+        Invoice invoice = em.find(Invoice.class, invoiceId);
+        if (invoice == null) {
+            return ResponseEntity.notFound().build();
+        }
+        File pdfFile = new File("src/main/resources/invoice/invoice.pdf");
+        FileSystemResource fileSystemResource = new FileSystemResource(pdfFile);
+        return ResponseEntity
+                .ok()
+                .contentLength(pdfFile.length())
+                .header("Content-Disposition", "attachment; filename=\"invoice-" + invoiceId + ".pdf\"")
+                .body(fileSystemResource);
     }
 
 }
