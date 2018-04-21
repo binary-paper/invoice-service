@@ -21,8 +21,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Arrays;
@@ -41,7 +39,6 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,9 +162,9 @@ public class InvoiceController {
         @ApiResponse(code = 400, message = "The input data is invalid")
         ,@ApiResponse(code = 404, message = "The invoiceId is invalid")
     })
-    public ResponseEntity<FileSystemResource> viewInvoicePdf(
+    public ResponseEntity<byte[]> viewInvoicePdf(
             @PathVariable Long invoiceId,
-            @ApiIgnore Principal principal) throws FileNotFoundException, JRException {
+            @ApiIgnore Principal principal) throws JRException {
         Invoice invoice = em.find(Invoice.class, invoiceId);
         if (invoice == null) {
             return ResponseEntity.notFound().build();
@@ -181,16 +178,12 @@ public class InvoiceController {
                 new JRBeanCollectionDataSource(Arrays.asList(invoice))
         );
         // Export the invoice report to PDF
-        File pdfFile = new File("invoice-" + invoiceId + ".pdf");
-        FileOutputStream fileOutputStream = new FileOutputStream(pdfFile);
-        JasperExportManager.exportReportToPdfStream(jasperPrint, fileOutputStream);
-        // Return the PDF file
-        FileSystemResource fileSystemResource = new FileSystemResource(pdfFile);
+        byte[] pdfFileBytes = JasperExportManager.exportReportToPdf(jasperPrint);
         return ResponseEntity
                 .ok()
-                .contentLength(pdfFile.length())
+                .contentLength(pdfFileBytes.length)
                 .header("Content-Disposition", "attachment; filename=\"invoice-" + invoiceId + ".pdf\"")
-                .body(fileSystemResource);
+                .body(pdfFileBytes);
     }
 
 }
