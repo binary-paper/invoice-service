@@ -208,7 +208,7 @@ public class Invoice implements Serializable {
             readOnly = true,
             position = 7
     )
-    private BigDecimal getSubTotal() {
+    public BigDecimal getSubTotal() {
         BigDecimal subTotal = new BigDecimal(0);
         for (InvoiceLineItem lineItem : lineItems) {
             subTotal = subTotal.add(lineItem.getLineItemTotal());

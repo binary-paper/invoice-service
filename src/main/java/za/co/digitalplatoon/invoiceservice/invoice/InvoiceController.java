@@ -22,8 +22,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
@@ -31,6 +34,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import lombok.extern.java.Log;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -157,12 +167,24 @@ public class InvoiceController {
     })
     public ResponseEntity<FileSystemResource> viewInvoicePdf(
             @PathVariable Long invoiceId,
-            @ApiIgnore Principal principal) throws FileNotFoundException {
+            @ApiIgnore Principal principal) throws FileNotFoundException, JRException {
         Invoice invoice = em.find(Invoice.class, invoiceId);
         if (invoice == null) {
             return ResponseEntity.notFound().build();
         }
-        File pdfFile = new File("src/main/resources/invoice/invoice.pdf");
+        // Render the invoice PDF file
+        File jasperReportFile = new File("src/main/resources/jasper/Invoice.jasper");
+        JasperReport jasperReport = (JasperReport) JRLoader.loadObject(jasperReportFile);
+        JasperPrint jasperPrint = JasperFillManager.fillReport(
+                jasperReport,
+                new HashMap<>(),
+                new JRBeanCollectionDataSource(Arrays.asList(invoice))
+        );
+        // Export the invoice report to PDF
+        File pdfFile = new File("invoice-" + invoiceId + ".pdf");
+        FileOutputStream fileOutputStream = new FileOutputStream(pdfFile);
+        JasperExportManager.exportReportToPdfStream(jasperPrint, fileOutputStream);
+        // Return the PDF file
         FileSystemResource fileSystemResource = new FileSystemResource(pdfFile);
         return ResponseEntity
                 .ok()
