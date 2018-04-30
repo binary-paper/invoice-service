@@ -104,8 +104,6 @@ public class InvoiceController {
 
     // Spring annotations
     @GetMapping
-    // Security annotations
-    @RolesAllowed("view-invoice")
     // Jackson annotations
     @JsonView(Invoice.View.List.class)
     // Swagger annotations
@@ -124,8 +122,6 @@ public class InvoiceController {
 
     // Spring annotations
     @GetMapping(path = "{invoiceId}")
-    // Security annotations
-    @RolesAllowed("view-invoice")
     // Jackson annotations
     @JsonView(Invoice.View.All.class)
     // Swagger annotations
@@ -150,8 +146,6 @@ public class InvoiceController {
 
     // Spring annotations
     @GetMapping(path = "{invoiceId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    // Security annotations
-    @RolesAllowed("view-invoice")
     // Swagger annotations
     @ApiOperation(value = "View an invoice PDF by ID",
             notes = "View an invoice PDF by ID",

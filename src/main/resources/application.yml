@@ -17,3 +17,12 @@ spring:
     h2:
         console:
             enabled: true
+            
+# Configure keycloak realm
+keycloak:
+    auth-server-url: http://localhost:8180/auth
+    realm: eoh
+    resource: rest-api
+    bearer-only: true
+    ssl-required: external
+    principal-attribute: preferred_username
