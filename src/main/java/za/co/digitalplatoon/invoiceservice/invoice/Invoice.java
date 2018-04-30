@@ -64,6 +64,7 @@ import lombok.ToString;
     "client",
     "vatRate",
     "invoiceDate",
+    "createdBy",
     "lineItems",
     "subTotal",
     "vat",
@@ -174,6 +175,20 @@ public class Invoice implements Serializable {
     )
     private Date invoiceDate;
 
+    // Jackson annotations
+    @JsonProperty(required = true)
+    @JsonView({
+        View.All.class
+    })
+    // Swagger annotations
+    @ApiModelProperty(
+            value = "The logged in user who created the invoice.",
+            example = "willy",
+            readOnly = true,
+            position = 6
+    )
+    private String createdBy;
+    
     // JPA annotations
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     // Bean validation annotations
@@ -192,7 +207,7 @@ public class Invoice implements Serializable {
     @ApiModelProperty(
             value = "The invoice line items.",
             required = true,
-            position = 6
+            position = 7
     )
     private List<InvoiceLineItem> lineItems = new ArrayList<>();
 
@@ -206,7 +221,7 @@ public class Invoice implements Serializable {
             value = "The invoice sub total excluding VAT.",
             example = "5.97",
             readOnly = true,
-            position = 7
+            position = 8
     )
     public BigDecimal getSubTotal() {
         BigDecimal subTotal = new BigDecimal(0);
@@ -226,7 +241,7 @@ public class Invoice implements Serializable {
             value = "The invoice VAT amount.",
             example = "0.90",
             readOnly = true,
-            position = 8
+            position = 9
     )
     public BigDecimal getVat() {
         BigDecimal subTotal = getSubTotal();
@@ -244,7 +259,7 @@ public class Invoice implements Serializable {
             value = "The invoice total including VAT.",
             example = "6.87",
             readOnly = true,
-            position = 9
+            position = 10
     )
     public BigDecimal getTotal() {
         return getSubTotal().add(getVat()).setScale(2, RoundingMode.HALF_UP);

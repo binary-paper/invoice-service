@@ -93,6 +93,7 @@ public class InvoiceController {
             @JsonView(Invoice.View.Add.class)
             @Valid Invoice invoice,
             @ApiIgnore Principal principal) {
+        invoice.setCreatedBy(principal.getName());
         em.persist(invoice);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
