@@ -72,8 +72,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        super.configure(http);
         http.csrf().disable();
+        http.headers().frameOptions().disable(); // Required for /h2-console
     }
 
 }
