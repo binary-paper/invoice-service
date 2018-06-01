@@ -13,8 +13,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.license>apache20</netbeans.hint.license>
         <netbeans.compile.on.save>true</netbeans.compile.on.save>
-        <spring.boot.version>2.0.1.RELEASE</spring.boot.version>
-        <keycloak.version>4.0.0.Beta2</keycloak.version>
+        <spring.boot.version>2.0.2.RELEASE</spring.boot.version>
+        <keycloak.version>4.0.0.Beta3</keycloak.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -59,6 +59,11 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-bean-validators</artifactId>
             <version>2.9.0</version>
         </dependency>
         <dependency>
